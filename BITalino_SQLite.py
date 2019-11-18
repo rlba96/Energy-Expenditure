@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sqlite3
 import bitalino
 import time
@@ -56,7 +57,9 @@ while (acquisitionTime is None) or (acquisitionTime > 0):
     data = device.read(samplingFreq*timeCycle)
     for ind in range(5, data.shape[1]):
         avg_data[acqChannels[ind - 5] + 2] = numpy.mean(numpy.fabs(data[:,ind]))
-        # Aply transfer function here;
+        # print(ind)
+        # Aply transfer functions here;
+    print("Acc: %s",avg_data[2])
     cursor.execute("INSERT INTO Data(Configuration, Time, Channel0, Channel1, Channel2, Channel3, Channel4, Channel5) VALUES" +
                     "(" + str(avg_data).replace("None", "null")[1:-1] + ");")
     database.commit()
@@ -69,10 +72,11 @@ device.close()
 
 # UnComment to Print Tables
 
+"""
 print("")
 print("Configurations:")
 
-cursor.execute("Select * from Configuration")
+cursor.execute("Select * from Configuration where Configuration ")
 for config in cursor.fetchall():
     print(config)
 
@@ -82,6 +86,6 @@ print("Data:")
 cursor.execute("Select * from Data")
 for data in cursor.fetchall():
     print(data)
-
-print("Program will close in 10 seconds.")
-time.sleep(10)
+"""
+print("Program will close.")
+time.sleep(1)
