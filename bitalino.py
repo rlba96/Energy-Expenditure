@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ 
 .. module:: bitalino
@@ -25,6 +26,8 @@ import struct
 import time
 import select
 import sys
+import requests
+import json
 
 def find():
     """
@@ -563,22 +566,26 @@ if __name__ == '__main__':
     
     digitalOutput = [1,1]
 
+    print("")
     print("BITalino Data Collection")
     print("")
     print("Searching for devices...")
-    
+
     # Connect to BITalino
     device = BITalino(macAddress)
+    print("")
     print("Device " + str(macAddress) + " connected.")
+    print("")
     
     # Set battery threshold
     device.battery(batteryThreshold)
     
     # Read BITalino version
     print(device.version())
-        
+
     # Start Acquisition
     device.start(samplingRate, acqChannels)
+    print("")
     print("Starting acquisition.")
 
     start = time.time()
@@ -586,12 +593,29 @@ if __name__ == '__main__':
     while (end - start) < running_time:
         # Read samples
         dataAcquired = device.read(samplingRate)
+        # Acc transfer function: ACC(g) = ((ADC - Cmin)/(Cmax - Cmin))*2-1
         max_acc = max(dataAcquired[:,5])
         min_acc = min(dataAcquired[:,5])
         fill_AccData = abs(((dataAcquired[:,5]-min_acc)/(max_acc-min_acc))*2-1) # BITalino channel 1
+        # HR and SpO2 sat transfer function: 0.25*ADC-0.8
         fill_HR_oxy = 0.25*dataAcquired[:,6]-0.8    # BITalino channel 2
         fill_SpO2_oxy = 0.25*dataAcquired[:,7]-0.8  # BITalino channel 3
+        # Mean values
+        Acc_mean = numpy.mean(fill_AccData)
+        HR_oxy_mean = numpy.mean(fill_HR_oxy)
+        SpO2_oxy_mean = numpy.mean(fill_SpO2_oxy)
+        # Send values to mongodb
+        data_v = {"name": "repouso",
+                "acc": round(Acc_mean,5),
+                "hr": round(HR_oxy_mean,2),
+                "oxy_sat": round(SpO2_oxy_mean,2)}
+       	headers = {'Content-type': 'application/json'}
+       	data_json = json.dumps(data_v)
+        r = requests.post(url = "http://127.0.0.1:3000/sensors", data = data_json, headers = headers)
+        response_db = r.text
+        print("Response: %s",response_db)
         """
+        # Print values
         print("")
         print("Acceleration(G):")
         print(fill_AccData)
@@ -613,10 +637,12 @@ if __name__ == '__main__':
     
     # Stop acquisition
     device.stop()
+    print("")
     print("Acquisition completed.")
     
     # Close connection
     device.close()
+    print("")
     print("Connection closed")
 
     time.sleep(1)
