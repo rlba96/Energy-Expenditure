@@ -1,11 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ 
 .. module:: bitalino
    :synopsis: BITalino API
-
 *Created on Fri Jun 20 2014*
-
 *Last Modified on Thur Jun 25 2015*
 """
 __author__ = "Pedro Gonçalves & Carlos Azevedo"
@@ -28,6 +26,9 @@ import select
 import sys
 import requests
 import json
+import csv
+
+from datetime import datetime
 
 def find():
     """
@@ -604,8 +605,29 @@ if __name__ == '__main__':
         Acc_mean = numpy.mean(fill_AccData)
         HR_oxy_mean = numpy.mean(fill_HR_oxy)
         SpO2_oxy_mean = numpy.mean(fill_SpO2_oxy)
+        # Caloric Expenditure
+        weight = 57
+        HR_rest = 55
+        HR_max = 197
+        HRR = ((HR_oxy_mean-HR_rest)/(HR_max-HR_rest))*100
+        MET = 0.0024*(Acc_mean*1000)+0.029*HRR+5.3113
+        Cal = 0.0175*MET*weight
+        # CSV Format
+        dt = datetime.today()
+        with open('EE_Dataset_Jogging_v1_0.csv', 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow([math.floor(dt.timestamp()),
+                            "Ricardo",
+                            weight,
+                            "Rest",
+                            round(Acc_mean,5),
+                            round(HR_oxy_mean,2),
+                            round(SpO2_oxy_mean,2),
+                            round(MET,2),
+                            round(Cal,2)
+                            ])
         # Send values to mongodb
-        data_v = {"name": "repouso",
+        data_v = {"name": "Rest",
                 "acc": round(Acc_mean,5),
                 "hr": round(HR_oxy_mean,2),
                 "oxy_sat": round(SpO2_oxy_mean,2)}
@@ -613,7 +635,9 @@ if __name__ == '__main__':
        	data_json = json.dumps(data_v)
         r = requests.post(url = "http://127.0.0.1:3000/sensors", data = data_json, headers = headers)
         response_db = r.text
-        print("Response: %s",response_db)
+        #print("Response: %s",response_db)
+        print("MET = ", round(MET,2))
+        print("kcal/min = ", round(Cal,2))
         """
         # Print values
         print("")
