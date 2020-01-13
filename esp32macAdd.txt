@@ -1,3 +1,0 @@
-30:AE:A4:CC:26:12
-
-sudo chmod a+rw /dev/ttyUSB0
