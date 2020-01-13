@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
+    Read Esp32 data from a MPU6050 sensor via BLE
     https://github.com/getsenic/gatt-python
 """
 import gatt
 import csv
 import time
 
-#from datetime import datetime
-
 manager = gatt.DeviceManager(adapter_name='hci0')
-
 
 class AnyDevice(gatt.Device):
     def services_resolved(self):
@@ -28,8 +26,6 @@ class AnyDevice(gatt.Device):
         firmware_version_characteristic.enable_notifications()
 
     def characteristic_value_updated(self, characteristic, value):
-        #dt = datetime.today()
-        #seconds = int(dt.timestamp())
         seconds = int(time.time())
         print(str(seconds) + "," + value.decode("utf-8"))
         with open('MPU6050_Data.csv', 'a') as pyfile:
