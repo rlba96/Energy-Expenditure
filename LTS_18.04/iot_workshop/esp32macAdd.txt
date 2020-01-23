@@ -1,0 +1,21 @@
+30:AE:A4:CC:26:12 - esp32
+D0:41:AF:74:f6:F1 - geonaute
+F0:57:3B:FB:D6:C2 - band
+F1:1B:B0:E1:6F:C1 - poço
+
+
+sudo chmod a+rw /dev/ttyUSB0
+
+sudo hciconfig hci0 up
+sudo hciconfig hci0 down
+
+gatttool 
+
+gatttool -b D0:41:AF:74:f6:F1  -t random  -I
+connect
+primary
+char-desc 0x000c 0x0011 -> handle
+char-write-req 0x000f 0100
+char-write-req 0x000f 0000 stop
+
+
