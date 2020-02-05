@@ -22,7 +22,7 @@ const int LED = 2; // Could be different depending on the dev board. I used the 
 #define I2C_SDA 33
 #define I2C_SCL 32
 
-const int MPU = 0x68; // MPU6050 I2C address
+const int MPU = 0x68; // MPU9250 I2C address
 float AccX, AccY, AccZ;
 
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -56,7 +56,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_SDA,I2C_SCL);       // Initialize comunication
-  Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
+  Wire.beginTransmission(MPU);       // Start communication with MPU9250 // MPU=0x68
   Wire.write(0x6B);                  // Talk to the register 6B
   Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
   Wire.endTransmission(true);        //end the transmission
@@ -118,5 +118,4 @@ void loop() {
     Serial.print(mpuDataString);
     Serial.println(" ***");
   }
-  //delay(1000);
 }
