@@ -21,7 +21,7 @@ def read_data_bitalino(samplingFreq,running_time):
     end = time.time()
     while (end - start) < running_time:
         # Read samples
-        dt = int(time.time())
+        seconds = int(time.time())
         dataAcquired = device.read(samplingFreq)
         
         # Acc transfer function: ACC(g) = ((ADC - Cmin)/(Cmax - Cmin))*2-1
@@ -39,25 +39,26 @@ def read_data_bitalino(samplingFreq,running_time):
         #SpO2_oxy_mean = numpy.mean(fill_SpO2_oxy)
 
         # CSV Format
-        with open('Dataset_Bitalino.csv', 'a') as file:     # Dataset_Bitalino.csv
+        with open('EE_Bitalino_Dataset.csv', 'a') as file:
             writer = csv.writer(file)
-            writer.writerow([dt,
-                            "Ricardo",
-                            weight,
-                            "Rest",
-                            round(Acc_mean,5)#,
-                            #round(HR_oxy_mean,2),
-                            #round(SpO2_oxy_mean,2)
-                            ])
+            for x in range(0,10):
+                writer.writerow([seconds,
+                                #round(fill_AccDataX[x],5),
+                                #round(fill_AccDataY[x],5),
+                                round(fill_AccData[x],5)
+                                #round(HR_oxy_mean,2),
+                                #round(SpO2_oxy_mean)
+                                ])
+        print("Timestamp = ",seconds," AccZ = ",Acc_mean)
         end = time.time()
 
     device.stop()           # Stop acquisition
     device.close()          # Close connection
-    print("Connection closed.")
+    print("BITalino connection closed.")
 
-def read_esp32_BLE_data():
+def read_esp32_BLE_data(running_time):
     manager = gatt.DeviceManager(adapter_name='hci0')
-
+    start = time.time()
     class AnyDevice(gatt.Device):
         def services_resolved(self):
             super().services_resolved()
@@ -76,20 +77,26 @@ def read_esp32_BLE_data():
 
         def characteristic_value_updated(self, characteristic, value):
             seconds = int(time.time())
+            print("Timestamp = ",str(seconds)," MPU6050 Acc = ",value.decode("utf-8"))
             with open('Dataset_MPU6050.csv', 'a') as pyfile:    # Dataset_MPU6050.csv
                 pyfile.write(str(seconds) + ',')
             with open("Dataset_MPU6050.csv", 'a') as file:
                 writer = csv.writer(file,delimiter = '\'')
-                writer.writerow([value.decode("utf-8")]) 
+                writer.writerow([value.decode("utf-8")])
+            end = time.time()
+            if(end - start) > (running_time):
+                self.disconnect()
+                print("Esp32 disconnected.")
+                self.manager.stop()
 
     device = AnyDevice(mac_address='30:AE:A4:CC:26:12', manager=manager)
     device.connect()
-
+    print("Esp32 connected.")
     manager.run()
 
-def read_HR_BLE_data():
+def read_HR_BLE_data(running_time):
     manager = gatt.DeviceManager(adapter_name='hci0')
-
+    start = time.time()
     class AnyDevice(gatt.Device):
         def services_resolved(self):
             super().services_resolved()
@@ -117,19 +124,24 @@ def read_HR_BLE_data():
                 pyfile.write(str(seconds) + ',')
             with open("HR_Data.csv",'a') as file:
                 writer = csv.writer(file,delimiter = ',')
-                writer.writerow([str(value[1]),str(rr)]) 
-            
+                writer.writerow([str(value[1]),str(rr)])
+            end = time.time() 
+            if(end - start) > (running_time):
+                self.disconnect()
+                print("Esp32 disconnected.")
+                self.manager.stop()
 
     device = AnyDevice(mac_address='D0:41:AF:74:F6:F1', manager=manager)
     device.connect()
-
+    print("Esp32 connected.")
     manager.run()
 
 if __name__ == "__main__":
 
     macAddress = "98:D3:81:FD:61:22"    # Device MacAddress: 98:D3:81:FD:61:22 or 20:15:12:22:81:68
     samplingFreq = 10                   # Sampling Frequency (Hz)
-    running_time = 5                    # Acquisition Time (s) - None for Infinite
+    running_time = 20                    # Acquisition Time (s) - None for Infinite
+    running_timeEsp = 25
     acqChannels = [0,1,2,3,4,5]         # Acquisition Channels ([0-5])
     weight = 57
 
@@ -148,17 +160,17 @@ if __name__ == "__main__":
 
     # Create processes
     p1 = multiprocessing.Process(target=read_data_bitalino,args=(samplingFreq,running_time))
-    p2 = multiprocessing.Process(target=read_esp32_BLE_data)
-    p3 = multiprocessing.Process(target=read_HR_BLE_data)
+    p2 = multiprocessing.Process(target=read_esp32_BLE_data,args=(running_timeEsp,))
+    #p3 = multiprocessing.Process(target=read_HR_BLE_data,args=(running_time,))
 
     # Start processes
     p1.start()
     p2.start()
-    p3.start()
+    #p3.start()
 
     # Wait until processes are finished
     p1.join()
     p2.join()
-    p3.join()
+    #p3.join()
 
     print("Done!")
