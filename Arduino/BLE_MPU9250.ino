@@ -1,3 +1,8 @@
+  /*
+     Arduino and MPU6050 Accelerometer and Gyroscope Sensor Tutorial
+     by Dejan, https://howtomechatronics.com
+     https://howtomechatronics.com/tutorials/arduino/arduino-and-mpu6050-accelerometer-and-gyroscope-tutorial/
+  */
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
