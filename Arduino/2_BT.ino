@@ -11,49 +11,92 @@
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
+#define VECTOR_LENGTH 10
+
 // Bluetooth Serial object
 BluetoothSerial SerialBT;
 
 // Handle received and sent messages
 String message = "";
 char incomingChar;
-String temperatureString = "";
+bool deviceConnected;
 
 // Timer: auxiliar variables
-unsigned long previousMillis = 0;    // Stores last time temperature was published
-const long interval = 5;         // interval at which to publish sensor readings
+unsigned long previousMillis = 0;     // Stores last time value was published
+const long interval = 1;            // interval at which to publish sensor readings
 
 //value to send
-uint32_t value = 0;
+//uint32_t value = 0;
+uint8_t value[VECTOR_LENGTH];
+//uint32_t value[VECTOR_LENGTH];
+
+
+void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
+    if(event == ESP_SPP_SRV_OPEN_EVT){
+      Serial.println("Client connected");
+    }
+   
+    if(event == ESP_SPP_CLOSE_EVT ){
+      Serial.println("Client disconnected");
+    }
+}
 
 void setup() {
-  Serial.begin(115200);
-  SerialBT.begin("ESP32");
-  Serial.println("Starting.");
+    Serial.begin(115200);
+    SerialBT.register_callback(callback);
+    SerialBT.begin("ESP32");
+    
+    if(!SerialBT.begin("ESP32")){
+      Serial.println("An error occurred initializing Bluetooth");
+    }else{
+      Serial.println("Bluetooth initialized");
+    }
+
+    for(int i=0; i<VECTOR_LENGTH; i++){
+      value[i] = 0;
+    }
+    
+    Serial.println("Waiting for a connection...");
 }
 
 void loop() {
 
-  unsigned long currentMillis = millis();
-  // Send temperature readings
-  if (currentMillis - previousMillis >= interval){
-    previousMillis = currentMillis;
-    SerialBT.println(value); 
-    Serial.println(value);
-    value++;
-  }
+    if(deviceConnected){
+      unsigned long currentMillis = millis();
   
-  
-  // Read received messages (LED control command)
-  if (SerialBT.available()){
-    char incomingChar = SerialBT.read();
-    if (incomingChar != '\n'){
-      message += String(incomingChar);
+      if (currentMillis - previousMillis >= interval){
+        previousMillis = currentMillis;
+        for(int i=0; i<VECTOR_LENGTH; i++){
+          Serial.print(value[i]);
+          value[i]++;
+          if(i == VECTOR_LENGTH-1){
+            Serial.println("");
+          }
+          else{
+            Serial.print(",");
+          }
+        } 
+        SerialBT.write(value,VECTOR_LENGTH);
+      }
     }
-    else{
-      message = "";
-    }
-    Serial.write(incomingChar);  
-  }
 
+    // Read received messages (to start and finish data delivery)
+    if (SerialBT.available()){
+      char incomingChar = SerialBT.read();
+      if (incomingChar != '\n'){
+        message += String(incomingChar);
+      }
+      else{
+        message = "";
+      }
+      
+      if (message == "s"){
+        deviceConnected = true;
+        message = "";
+      }
+      else if (message == "x"){
+        deviceConnected = false;
+        message = "";
+      }  
+    } 
 }
