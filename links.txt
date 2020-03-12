@@ -3,3 +3,6 @@ https://github.com/BITalinoWorld/revolution-python-api
 http://bitalino.com/pyAPI/#
 https://github.com/BITalinoWorld/revolution-python-api
 https://github.com/BITalinoWorld/python-lab-guides/tree/master/BITalino%20Hands-on#process filters
+
+Complementary filter:
+http://www.pieter-jan.com/node/11
