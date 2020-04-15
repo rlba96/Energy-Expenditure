@@ -1,3 +1,4 @@
+% Dataset link: https://figshare.com/articles/Predicting_energy_cost_from_wearable_sensors_A_dataset_of_energetic_and_physiological_wearable_sensor_data_from_healthy_individuals_performing_multiple_physical_activities/7473191
 clear all
 clc
 load('Subject04.mat')
@@ -8,8 +9,8 @@ s4_w = 68.03;
 s4_a = 25;
 
 %% 1D Gaussian lowpass filter
-%https://www.mathworks.com/matlabcentral/fileexchange/12606-1d-gaussian-lowpass-filter
-%https://www.mathworks.com/matlabcentral/answers/75987-gaussian-smoothing-of-time-series
+% https://www.mathworks.com/matlabcentral/fileexchange/12606-1d-gaussian-lowpass-filter
+% https://www.mathworks.com/matlabcentral/answers/75987-gaussian-smoothing-of-time-series
 
 %% Walking
 % APDM_Accel - waist, chest, ankles and foot
@@ -829,30 +830,4 @@ for ii = 1:size(data,1)
     fprintf(fid,'\n');
 end
 fclose(fid);
-
-% Metabolic System - VO2 and VC02
-% Walking
-% s4_walk_VO2 = Subject04.Walking.Metabolics_System.Data(:,3);
-% s4_walk_VCO2 = Subject04.Walking.Metabolics_System.Data(:,4);
-% s4_walk_gtEEcost = 16.58*s4_walk_VO2 + 4.84*s4_walk_VCO2;
-
-% Incline
-% s4_incline_VO2 = Subject04.Incline.Metabolics_System.Data(:,3);
-% s4_incline_VCO2 = Subject04.Incline.Metabolics_System.Data(:,4);
-% s4_incline_gtEEcost = 16.58*s4_incline_VO2 + 4.84*s4_incline_VCO2;
-
-% Backwards
-% s4_back_VO2 = Subject04.Backwards.Metabolics_System.Data(:,3);
-% s4_back_VCO2 = Subject04.Backwards.Metabolics_System.Data(:,4);
-% s4_back_gtEEcost = 16.58*s4_back_VO2 + 4.84*s4_back_VCO2;
-
-% Running
-% s4_run_VO2 = Subject04.Running.Metabolics_System.Data(:,3);
-% s4_run_VCO2 = Subject04.Running.Metabolics_System.Data(:,4);
-% s4_run_gtEEcost = 16.58*s4_run_VO2 + 4.84*s4_run_VCO2;
-
-% Cycling
-% s4_cyc_VO2 = Subject04.Cycling.Metabolics_System.Data(:,3);
-% s4_cyc_VCO2 = Subject04.Cycling.Metabolics_System.Data(:,4);
-% s4_cyc_gtEEcost = 16.58*s4_cyc_VO2 + 4.84*s4_cyc_VCO2;
 
