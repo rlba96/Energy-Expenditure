@@ -15,8 +15,6 @@ import binascii
 
 from datetime import datetime
 
-from bluepy.btle import Peripheral, ADDR_TYPE_RANDOM, AssignedNumbers, ADDR_TYPE_PUBLIC
-
 running_time = 10
 
 def read_data_bitalino(samplingFreq,running_time):
