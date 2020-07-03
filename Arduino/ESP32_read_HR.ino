@@ -24,12 +24,12 @@ static BLERemoteCharacteristic* pRXCharacteristic;
 
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   if (length == 2){
-    Serial.println(pData[1]);
+    Serial.print(pData[1]);
   }
   if (length == 4){
     Serial.print(pData[1]);
     Serial.print(",");
-    Serial.println((pData[3]<<8)|pData[2]);
+    Serial.print((pData[3]<<8)|pData[2]);
   }
 }
 
@@ -105,7 +105,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Starting HR aquisition with Poalr HR band.");
+  Serial.println("Starting HR aquisition with Polar HR band.");
 
   BLEDevice::init("");
   BLEScan* pBLEScan = BLEDevice::getScan();
