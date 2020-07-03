@@ -1,10 +1,11 @@
+
   /*
      https://github.com/ThingEngineer/ESP32_BLE_client_uart/blob/master/src/ESP32_BLE_client_uart.ino
   */
 #include "BLEDevice.h"
 
-static BLEUUID serviceUUID("0000180d-0000-1000-8000-00805f9b34fb");
-static BLEUUID charUUID_RX("00002a37-0000-1000-8000-00805f9b34fb");   // RX Characteristic
+static BLEUUID serviceUUID("0000180d-0000-1000-8000-00805f9b34fb");   // Heart Rate service UUID
+static BLEUUID charUUID_RX("00002a37-0000-1000-8000-00805f9b34fb");   // Heart Rate characteristic UUID Characteristic
 static BLEUUID charUUID_TX("00002a37-0000-1000-8000-00805f9b34fb");   // TX Characteristic
 
 static BLEAddress *pServerAddress;
@@ -13,23 +14,15 @@ static boolean connected = false;
 static BLERemoteCharacteristic* pTXCharacteristic;
 static BLERemoteCharacteristic* pRXCharacteristic;
 
-/*
-    for (int i = 0; i < length; i++) {
-      Serial.print(pData[i]);           
-      if (i < (length-1))
-        Serial.print(",");
-    }
-    Serial.println();
-*/
 
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   if (length == 2){
-    Serial.print(pData[1]);
+    Serial.println(pData[1]);
   }
-  if (length == 4){
+  else if (length == 4){
     Serial.print(pData[1]);
     Serial.print(",");
-    Serial.print((pData[3]<<8)|pData[2]);
+    Serial.println((pData[3]<<8)|pData[2]);
   }
 }
 
