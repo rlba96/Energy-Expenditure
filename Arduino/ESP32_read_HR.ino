@@ -1,4 +1,3 @@
-
   /*
      https://github.com/ThingEngineer/ESP32_BLE_client_uart/blob/master/src/ESP32_BLE_client_uart.ino
   */
@@ -14,16 +13,24 @@ static boolean connected = false;
 static BLERemoteCharacteristic* pTXCharacteristic;
 static BLERemoteCharacteristic* pRXCharacteristic;
 
-static void notifyCallback(
-    BLERemoteCharacteristic* pBLERemoteCharacteristic,
-    uint8_t* pData,
-    size_t length,
-    bool isNotify) {
+/*
     for (int i = 0; i < length; i++) {
-      Serial.print(pData[i]);           // print data
-      Serial.print(",");
+      Serial.print(pData[i]);           
+      if (i < (length-1))
+        Serial.print(",");
     }
     Serial.println();
+*/
+
+static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
+  if (length == 2){
+    Serial.println(pData[1]);
+  }
+  if (length == 4){
+    Serial.print(pData[1]);
+    Serial.print(",");
+    Serial.println((pData[3]<<8)|pData[2]);
+  }
 }
 
 bool connectToServer(BLEAddress pAddress) {
@@ -98,7 +105,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Starting Arduino BLE Central Mode (Client) Nordic UART Service");
+  Serial.println("Starting HR aquisition with Poalr HR band.");
 
   BLEDevice::init("");
   BLEScan* pBLEScan = BLEDevice::getScan();
@@ -115,10 +122,10 @@ void loop() {
 
   if (doConnect == true) {
     if (connectToServer(*pServerAddress)) {
-      Serial.println("We are now connected to the BLE Server.");
+      Serial.println("We are now connected to the Polar HR band.");
       connected = true;
     } else {
-      Serial.println("We have failed to connect to the server; there is nothin more we will do.");
+      Serial.println("We have failed to connect to the Polar HR band; There is nothin more we will do.");
     }
     doConnect = false;
   }
