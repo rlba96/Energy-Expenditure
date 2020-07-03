@@ -13,7 +13,6 @@ def read_Polar_HR(running_time):
                         stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS,
                         timeout=0)
-    #print("connected to: " + ser.portstr)
     start = time.time()
     end = time.time()
 
@@ -24,8 +23,6 @@ def read_Polar_HR(running_time):
             pyfile.write(timestamp + ',')
         with open('/home/ap4isr/Desktop/DataAcquisitions/Subj003/HR_Data.csv', 'b+a') as pyfile:
             pyfile.write(line)
-        #print(str(line)," Timestamp: ",timestamp)
-        #print("")
         print(timestamp, "", line.decode('utf-8'))
         end = time.time()
         time.sleep(1)
