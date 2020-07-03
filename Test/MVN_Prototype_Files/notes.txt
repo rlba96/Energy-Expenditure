@@ -1,0 +1,8 @@
+Files testing data acquisitions:
+  -> testHumon.py => Humon Hex BLE acquisition;
+  -> testHR.py => Heart rate cardio band bluetooth acquisition;
+  -> testBITalino.py => BITalino acquisition (bluetooth);
+  -> testPCB.py => PCB acquisition(bluetooth);
+  
+ File for data acquisiton:
+  -> testPrototype.py
