@@ -4,7 +4,6 @@
 
 /*  Sensors:
  *    ICM-20648;
- *    MAX30205; 
 */
 
 #include "BluetoothSerial.h"
