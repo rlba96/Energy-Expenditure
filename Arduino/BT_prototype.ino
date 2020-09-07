@@ -235,7 +235,9 @@ void loop() {
       data_over_BT[27] = Wire.read();
       data_over_BT[28] = Wire.read();
       data_over_BT[29] = Wire.read();
-                        
+      
+      delay(1);
+/*                        
       // Channel 6
       Wire.begin(I2C_SDA, I2C_SCL);
       TCA_select(6);
@@ -249,19 +251,6 @@ void loop() {
       data_over_BT[33] = Wire.read();
       data_over_BT[34] = Wire.read();
       data_over_BT[35] = Wire.read();
-/*
-      Serial.print(data_over_BT[0]);
-      Serial.print(" ");
-      Serial.print(data_over_BT[1]);
-      Serial.print(" | ");
-      Serial.print(data_over_BT[2]);
-      Serial.print(" ");
-      Serial.print(data_over_BT[3]);
-      Serial.print(" | ");
-      Serial.print(data_over_BT[4]);
-      Serial.print(" ");
-      Serial.print(data_over_BT[5]);  
-      Serial.println("");
 */
       // Send value
       SerialBT.write(data_over_BT,VECTOR_LENGTH);
