@@ -25,10 +25,6 @@ class AnyDevice(gatt.Device):
             for characteristic in service.characteristics:
                 print("[%s]    Characteristic [%s]" % (self.mac_address, characteristic.uuid))
 
-#30:AE:A4:CC:26:12 - esp32
-#D0:41:AF:74:f6:F1 - geonaute
-#F0:57:3B:FB:D6:C2 - band
-#F1:1B:B0:E1:6F:C1 - poço
 device = AnyDevice(mac_address='D0:41:AF:74:f6:F1', manager=manager)
 device.connect()
 
