@@ -3,8 +3,6 @@ close all;
 clc;
 
 %% Subject 001
-% Nota: apenas correu 5m a 10km/h
-% Starting tstamp: 1595236435
 age = 21;           % years
 weight = 60.3;      % kg
 height = 1.75;      % m
@@ -26,7 +24,6 @@ xlim([0 240])
 ylim([0 100])
 
 %% Heart Rate
-% Freq 1Hz
 A = dlmread('HR_Data.csv');
 HR_test = A(38:697,2);
 tstamp = A(:,1);
@@ -55,30 +52,34 @@ xl.LabelHorizontalAlignment = 'right';
 xl.LabelOrientation = 'horizontal';
 
 %% Muscle oxygenation
-% Starting tstamp: 1595236435
-% Freq: 4Hz
 B = dlmread('Muscle_Oxy_Data.csv');
 SmO2_test = B(157:2796,2);
 t_test = B(157:2796,1);
 t = (1:length(SmO2_test))/4;
 
-% Plot
+% 4th byte array (to identify zones and plot pie chart)
+E3 = dlmread('byteArray4.csv');
+b3 = E3(157:2796,2)/100;
+t = (1:length(b3))/4;
+%t = 1:length(b3);
+
+% Plot muscle oxygenation over time, with correspondent intensity zone
 plot(t,SmO2_test);
 hold on
 for i = 1:length(SmO2_test)
-    % Zona 2: azul
+    % Recovery zone: blue
     if((t(i) <= 3/4) || ((t(i) >= 316/4) && (t(i) <= 371/4)) || ((t(i) > 371/4) && (t(i) <864/4)) || ((t(i) >= 1212/4) && (t(i) <= 1295/4)) || ((t(i) >= 1444/4) && (t(i) <= 1519/4)))
         line([t(i) t(i)],[0 SmO2_test(i)],'Color',[.0157 .49 0.74]);
     end
-    % Zona 3: verde
+    % Steady-state zone: green
     if((t(i) > 3/4) && (t(i) <192/4) || (t(i) > 279/4) && (t(i) <376/4) || (t(i) > 371/4) && (t(i) <864/4) || (t(i) > 1295/4) && (t(i) <1443/4) || (t(i) > 1514/4) && (t(i) <1976/4) || (t(i) > 2263/4))
         line([t(i) t(i)],[0 SmO2_test(i)],'Color',[0.1137 .6784 .38]);
     end
-    % Zona 4: laranja
+    % Approaching limit zone: orange
     if((t(i) >= 192/4) && (t(i) <= 279/4) || (t(i) >= 864/4) && (t(i) <= 943/4) || (t(i) >= 1036/4) && (t(i) <1211/4) || (t(i) >= 1976/4) && (t(i) <= 2263/4))
         line([t(i) t(i)],[0 SmO2_test(i)],'Color',[0.69 .43 .098]);
     end
-    % Zona 5: vermelho
+    % Limit zone: red
     if((t(i) >= 944/4) && (t(i) <= 1035/4)) 
         line([t(i) t(i)],[0 SmO2_test(i)],'Color',[.72 .0275 0.098]);
     end
@@ -103,13 +104,7 @@ xl.LabelVerticalAlignment = 'top';
 xl.LabelHorizontalAlignment = 'right';
 xl.LabelOrientation = 'horizontal';
 
-% 4th byte array
-E3 = dlmread('byteArray4.csv');
-b3 = E3(157:2796,2)/100;
-t = (1:length(b3))/4;
-t = 1:length(b3);
-
-% Plot
+% Plot pie chart
 plot(t,b3);
 xlabel('Time (s)');
 ylabel('Value');
@@ -148,96 +143,10 @@ plot(x1,y);
 xlabel('Timestamp (s)');
 ylabel('Frequency (Hz)');
 title('SmO2 frequency');
-%xlim([-5000 70000])
 ylim([0 7])
 
-%% Other byte arrays
-% 1st byte array
-E1 = dlmread('byteArray1.csv');
-b1 = E1(157:2796,2);
-t = (1:length(b1))/4;
-
-% Plot
-plot(t,b1);
-xlabel('Time (s)');
-ylabel('Value');
-%title('Muscle Oxygenation');
-xlim([0 640])
-%ylim([50 60])
-xline(180,'--r');
-xline(360,'--r');
-xl = xline(1,'--r','8km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(180,'--r','9km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(360,'--r','10km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-
-% 2nd byte array
-E2 = dlmread('byteArray2.csv');
-b2 = E2(157:2796,2);
-t = (1:length(b2))/4;
-
-% Plot
-plot(t,b2);
-xlabel('Time (s)');
-ylabel('Value');
-%title('Muscle Oxygenation');
-xlim([0 640])
-%ylim([50 60])
-xline(180,'--r');
-xline(360,'--r');
-xl = xline(1,'--r','8km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(180,'--r','9km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(360,'--r','10km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-
-% 4th byte array
-E3 = dlmread('byteArray4.csv');
-b3 = E3(157:2796,2)/100;
-t = (1:length(b3))/4;
-t = 1:length(b3);
-
-% Plot
-plot(t,b3);
-xlabel('Time (s)');
-ylabel('Value');
-%title('Muscle Oxygenation');
-xlim([0 640])
-%ylim([50 60])
-xline(180,'--r');
-xline(360,'--r');
-xl = xline(1,'--r','8km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(180,'--r','9km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-xl = xline(360,'--r','10km/h');
-xl.LabelVerticalAlignment = 'top';
-xl.LabelHorizontalAlignment = 'right';
-xl.LabelOrientation = 'horizontal';
-
-plot(t,SmO2_test,'-b',t,b3,'-r');
 
 %% EDA
-% Starting tstamp: 1595236435
 C = dlmread('EDA_Data.csv');
 EDA_test = C(3701:69700,3);
 EDA_raw = 1./EDA_test;
@@ -245,7 +154,7 @@ ADC = EDA_raw./(2^10);
 EDA_top = (ADC*3.3)./0.132;
 EDA = EDA_top * (10^(-6));
 
-% Low-pass 4th order Butterworth;  fc = 1Hz
+% Low-pass 4th order Butterworth;  fc = 0.1Hz
 fc = 0.1;     % cut-off freq 0.1Hz
 fs = 100;     % sample rate 100Hz
 n = 4;
@@ -258,7 +167,6 @@ plot([EDA_fil]);
 fid = fopen('data_eda.csv', 'wt');
 
 tstamp = C(3701:69700,1);
-
 A = [tstamp,EDA];
 
 for ii = 1:size(A,1)
@@ -278,9 +186,9 @@ plot(f,abs(EDA_fft)); xlabel('Frequency (Hz)'); ylabel('Magnitude');
 
 % FFT
 L = size(C,1);                                              % Vector Length
-Ts = mean(diff(t_test));                                    % Sampling Interval (Assume ‘seconds’)
-Fs = 1/Ts;                                                  % Sampling Frequency (Assume ‘Hz’)
-Fn = Fs/2;                                                  % Nyquist Frequency (Assume ‘Hz’)
+Ts = mean(diff(t_test));                                    % Sampling Interval (Assume â€˜secondsâ€™)
+Fs = 1/Ts;                                                  % Sampling Frequency (Assume â€˜Hzâ€™)
+Fn = Fs/2;                                                  % Nyquist Frequency (Assume â€˜Hzâ€™)
 EDA_test = EDA_test - mean(EDA_test);                       % Remove D-C (Constant) Offset
 Y = fft(EDA_test)/L;                                        % Scaled Two-Sided Discrete Fourier Transform
 Fv = linspace(0, 1, fix(L/2)+1)*Fn;                         % Frequency Vector
@@ -342,21 +250,17 @@ xl.LabelHorizontalAlignment = 'right';
 xl.LabelOrientation = 'horizontal';
 
 %% Energy Expenditure
-% Keytel et. al 2005
+% Considered ground truth energy expenditure (Keytel et. al 2005)
 EE = (-55.0969 + (0.6309*HR_test) + (0.1988*weight) + (0.2017*age))/4.184; %kcal/min
 
 ee_fil = lowpass(EE,0.1,100);
 
-sgf = sgolayfilt(EE,3,11);
 
 % Plot
-%plot(tstamp_test_conv,EE,'-b',tstamp_test_conv,sgf,'-r');
-%plot(tstamp_test_conv,sgf,'-b');
 plot(t,EE);
 xlabel('Time (s)');
 ylabel('EE (kcal/min)');
 title('Energy Expenditure');
-%legend('Normal','Filtered');
 xlim([0 660])
 ylim([10 18])
 xline(180,'--r');
@@ -374,10 +278,8 @@ xl.LabelVerticalAlignment = 'top';
 xl.LabelHorizontalAlignment = 'right';
 xl.LabelOrientation = 'horizontal';
 
-cal_m = sum(sgf/60);
 
-plot([HR_test EE]);
-
+% Check visual correlation
 yyaxis left
 plot(t,HR_test);
 xlabel('Time (s)');
@@ -385,11 +287,10 @@ ylabel('Heart rate (BPM)');
 ylim([150 180]);
 yyaxis right
 plot(t,EE);
-%xlabel('Time (s)');
 ylabel('EE (kcal/min)');
 ylim([13 18]);
+
 %% Accelerations
-% Starting tstamp: 1595236435-1595237095
 D = dlmread('Acc_Data.csv');
 t_test = D(21969:90358,1);
 t_test_conv = t_test - t_test(1);
@@ -1168,7 +1069,7 @@ xlim([-1 721])
 
 
 %% Import the data to csv_file
-fid = fopen('Dataset_Sub011.csv', 'wt');
+fid = fopen('Dataset_Sub001.csv', 'wt');
 
 BMI = BMI+zeros(length(HR_test),1);
 age = age+zeros(length(HR_test),1);
