@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-    Read Esp32 data from a MPU6050 sensor via BLE
+    MPU6050 sensor data acquisition via BLE
     https://github.com/getsenic/gatt-python
 """
 import gatt
