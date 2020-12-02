@@ -1,4 +1,4 @@
-%% Accelerometry Filtering
+%% PCB MEMS accelerometer calibration - adopted from https://www.pololu.com/file/0J434/LSM303DLH-compass-app-note.pdf
 clear all;
 close all;
 clc;
