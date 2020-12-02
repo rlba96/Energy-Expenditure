@@ -1,1 +1,1 @@
-Energy expenditure models developed, using Google Colaboratory.
+Energy expenditure models, using Google Colaboratory.
