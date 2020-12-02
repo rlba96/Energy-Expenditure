@@ -11,7 +11,7 @@ import gatt
 
 from datetime import datetime
 
-running_time = 15 
+running_time = 1200 
 
 class AnyDevice(gatt.Device):
     def connect_succeeded(self):
@@ -48,9 +48,9 @@ class AnyDevice(gatt.Device):
         if(end_HR - start_HR) > running_time:
             self.disconnect()
             self.manager.stop()
-            print("\nGeonaute disconnected")
+            print("\nPolar H7 disconnected")
 
-def read_Geonaute_HR():
+def read_PolarH7_HR():
     manager.run()
 
 def read_data_bitalino(samplingFreq,running_time):
@@ -64,35 +64,19 @@ def read_data_bitalino(samplingFreq,running_time):
         seconds = int(time.time())
         dataAcquired = device.read(samplingFreq)
         
-        # Acc transfer function: ACC(g) = ((ADC - Cmin)/(Cmax - Cmin))*2-1
-        # X = channel 5 --------- 9
-        # Y = channel 4 --------- 8
-        # Z = channel 3 --------- 7
-        max_accZ = max(dataAcquired[:,5])
-        min_accZ = min(dataAcquired[:,5])
-        fill_AccDataZ = ((dataAcquired[:,5]-min_accZ)/(max_accZ-min_accZ))*2-1 # BITalino channel 3
-        
-        # HR and SpO2 sat transfer function: 0.25*ADC-0.8
-        #fill_HR_oxy = 0.25*dataAcquired[:,6]-0.8    # BITalino channel 2
-        #fill_SpO2_oxy = 0.25*dataAcquired[:,5]-0.8  # BITalino channel 3
+        # EDA transfer function: EDA(us) = [((ADC * Vcc) / (2^n)) / (0.132)] * (10^(-6))
+        EDA_data = (((dataAcquired[:,5]*3.3)/(2**10))/0.132)*(10**(-6)) # BITalino channel 3
         
         # Mean values (to print)
-        Acc_meanZ = numpy.mean(fill_AccDataZ)
-        #HR_oxy_mean = numpy.mean(fill_HR_oxy)
-        #SpO2_oxy_mean = numpy.mean(fill_SpO2_oxy)
+        EDA_mean = numpy.mean(EDA_data)
 
         # CSV Format
         with open('EE_Bitalino_Dataset.csv', 'a') as file:
             writer = csv.writer(file)
             for x in range(0,10):
-                writer.writerow([seconds,
-                                round(fill_AccDataZ[x],5)
-                                #round(HR_oxy_mean,2),
-                                #round(SpO2_oxy_mean)
-                                ])
+                writer.writerow([seconds, round(EDA_data[x],5)])
         print("")
-        print("Timestamp = ",seconds," AccZ = ",Acc_meanZ)
-        #print("SpO2 = ",round(SpO2_oxy_mean))
+        print("Timestamp = ",seconds," EDA = ",EDA_mean)
         end = time.time()
 
     device.stop()           # Stop acquisition
@@ -102,16 +86,7 @@ def read_data_bitalino(samplingFreq,running_time):
 def read_top_PCB(runtime, port, vectorLen, sensitivity):
     start = int(time.time())
     end = int(time.time())
-    #bd_addr = "30:AE:A4:CC:26:12"       #top (red mark on top): 30:AE:A4:CC:26:12    low:C4:4F:33:3E:B3:CB   
 
-    #file = open('EE_top_PCB_Dataset .csv', 'a')
-
-    #sock=bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-    #sock.connect((PCB_top_addr, port))
-    #print('Top PCB connected.')
-
-    #sock.settimeout(1.0)
-    #print('Starting acquisition.')
     sock.send("s")
 
     while (end - start) < runtime:
@@ -129,8 +104,6 @@ def read_top_PCB(runtime, port, vectorLen, sensitivity):
         temp = raw_temp * 0.00390625
 
         file.write(str(seconds) + "," + str(round(accX,2)) + "," + str(round(accY,2)) + "," + str(round(accZ,2)) + "\n")
-        #print(data[0]," ",data[1], " | ", data[2], " ", data[3], " | ", data[4], " ", data[5], "\n", data[6], " ", data[7], "\n")
-        #print("AccX: ", accX, "g | AccY: ", accY, "g | AccZ: ", accZ)
         end = int(time.time())
 
     print('Stopping acquisition.')
@@ -148,24 +121,22 @@ def twos_complement(input_value: int, num_bits: int) -> int:
 
 if __name__ == "__main__":
 
-    macAddress_BITalino = "98:D3:81:FD:61:22"           # Device MacAddress: 98:D3:81:FD:61:22 or 20:15:12:22:81:68
+    macAddress_BITalino = "98:D3:81:FD:61:22"           # BITalino MAC Address
     samplingFreq_BITalino = 10                          # Sampling Frequency (Hz)
     acqChannels = [0,1,2,3,4,5]                         # Acquisition Channels ([0-5])
     port = 1
     vectorLen = 8
     sensitivity = 2048
-    PCB_top_addr = "30:AE:A4:CC:26:12"       #top (red mark on top): 30:AE:A4:CC:26:12    low:C4:4F:33:3E:B3:CB 
-    Geonaute_addr = 'D0:41:AF:74:F6:F1'
+    PCB_top_addr = "30:AE:A4:CC:26:12"                  # MAC address of the microcontroller ESP32 incorporated in the designed PCB
+    PolarH7_addr = 'D0:41:AF:74:F6:F1'                  # Polar H7 MAC address
 
     print("\nData Collection")
 
     file = open('EE_top_PCB_Dataset .csv', 'a')
-    #fileHR = open("EE_HR_Dataset.csv",'a')
 
+    # Search for BITalino devices
     print("\nSearching for BITalino devices...")
-
     device = bitalino.BITalino(macAddress_BITalino)
-    
     print("\nBITalino device " + str(macAddress_BITalino) + " connected.")
 
     sock=bluetooth.BluetoothSocket(bluetooth.RFCOMM)
@@ -176,11 +147,11 @@ if __name__ == "__main__":
     sock.settimeout(1.0)
 
     manager = gatt.DeviceManager(adapter_name='hci0')
-    deviceHR = AnyDevice(mac_address=Geonaute_addr, manager=manager)
+    deviceHR = AnyDevice(mac_address=PolarH7_addr, manager=manager)
 
-    print("\nConnecting to Geonaute HR...")
+    print("\nConnecting to Polar H7...")
     deviceHR.connect()
-    print("\nGeonaute HR connected.")
+    print("\Polar H7 connected.")
 
     start_HR = int(time.time())
     end_HR = int(time.time())
@@ -190,7 +161,7 @@ if __name__ == "__main__":
     # Create processes
     p1 = multiprocessing.Process(target=read_data_bitalino,args=(samplingFreq_BITalino,running_time))
     p2 = multiprocessing.Process(target=read_top_PCB,args=(running_time,port,vectorLen,sensitivity))
-    p3 = multiprocessing.Process(target=read_Geonaute_HR)
+    p3 = multiprocessing.Process(target=read_PolarH7_HR)
 
     # Start processes
     p1.start()
