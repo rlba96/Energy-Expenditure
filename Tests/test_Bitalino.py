@@ -57,10 +57,10 @@ def read_data_bitalino(samplingFreq,running_time):
 
 if __name__ == "__main__":
 
-    macAddress = "98:D3:81:FD:61:22"    # Device MacAddress: 98:D3:81:FD:61:22 or 20:15:12:22:81:68
-    samplingFreq = 10                # Sampling Frequency (Hz)
+    macAddress = "98:D3:81:FD:61:22"     # Device MacAddress: 98:D3:81:FD:61:22 or 20:15:12:22:81:68
+    samplingFreq = 10                    # Sampling Frequency (Hz)
     running_time = 10                    # Acquisition Time (s) - None for Infinite
-    acqChannels = [0,1,2,3,4,5]         # Acquisition Channels ([0-5])
+    acqChannels = [0,1,2,3,4,5]          # Acquisition Channels ([0-5])
 
     print("")
     print("Data Collection")
